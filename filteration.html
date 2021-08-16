@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Filtering data using Leaflet</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+	<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+	<link rel="stylesheet" href="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.css" />	
+   	<script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
+	<!-- <script type="text/javascript" src="Area_of_study.js"></script> -->
+	<script type="text/javascript" src="sub.js"></script>
+	<script type="text/javascript" src="unemployment.js"></script>
+	<script type="text/javascript" src="measure_options.json"></script>
+	<style type="text/css"></style>
+</head>
+<body>
+<!-- header -->
+<header><marquee>Filteration of Data in Leaflets</marquee></header>
+<div class="span" style="display: flex;flex-direction: row;flex-grow: 1; margin-right: 5px;margin-left: 5px;">
+	<button id="a">Rate <=15</button>
+	<button id="b">Rate >15 && <20</button>
+	<button id="c">Rate > 20</button>
+	<button id="d">All Features</button>
+</div>
+<div id = "map" style = "width:100%; height:100vh;">	
+</div>
+<script type="text/javascript">
+		var greaterthan20 = document.getElementById('a');
+		var lessthan20 = document.getElementById('b');
+		var equalto20 = document.getElementById('c');
+		var all =document.getElementById('d');
+		var mapOptions = {
+				center: [0.0236, 37.9062],
+				zoom:6
+			}
+		// Creating a map object
+	    var map = new L.map('map', mapOptions);
+	    // Creating a Layer object
+	         var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+         
+         // Adding layer to the map
+         map.addLayer(layer);
+         //add marker
+         var marker = new L.Marker([-1.2917, 36.8138]);
+         marker.bindPopup('This is Nairobi the capital city of Kenya.').openPopup();
+         marker.addTo(map);
+         var subcounty_json,sub_json;
+
+         subcounty_json = L.geoJson(emp).addTo(map);
+         sub_json = L.geoJson(subcounties,{
+				pointToLayer: function(feature,latlng){
+					return L.circleMarker(latlng,{
+						radius:7.0,
+						fillColor:'#FF0000',
+						color:'#eee',
+						weight:1,
+						opacity:1.0,
+						fillOpacity:1.0
+					})
+				}
+				}).addTo(map);
+         var greater,lesser,equalto;
+         greater = L.geoJson(emp,{
+         	filter:function(feature, layer){
+					return feature.properties.unemployme < 15;
+				}
+         }).addTo(map);
+
+         lesser = L.geoJson(emp,{
+         	filter:function(feature, layer){
+					return feature.properties.unemployme >=15 && feature.properties.unemployme <=20;
+				}
+         }).addTo(map);
+
+         equalto = L.geoJson(emp,{
+         	filter:function(feature, layer){
+					return feature.properties.unemployme > 20;
+				}
+         }).addTo(map);
+         alll = L.geoJson(emp).addTo(map);
+
+        // onclick events
+        greaterthan20.onclick = function(){
+        	map.addLayer(greater);
+        	map.removeLayer(lesser);
+        	map.removeLayer(equalto);
+        	map.removeLayer(subcounty_json);
+        	map.removeLayer(alll);
+        }
+        lessthan20.onclick = function(){
+        	map.addLayer(lesser);
+        	map.removeLayer(greater);
+        	map.removeLayer(equalto);
+        	map.removeLayer(subcounty_json);
+        	map.removeLayer(alll);
+        }
+        equalto20.onclick = function(){
+        	map.addLayer(equalto);
+        	map.removeLayer(lesser);
+        	map.removeLayer(greater);
+        	map.removeLayer(subcounty_json);
+        	map.removeLayer(alll);
+        }
+		all.onclick = function(){
+		 map.addLayer(alll);
+		 map.removeLayer(equalto);
+    	 map.removeLayer(lesser);
+    	 map.removeLayer(greater);
+    	 // map.removeLayer(subcounty_json);	
+		}
+         L.control.polylineMeasure(options).addTo(map);
+</script>
+
+
+</body>
+</html>
